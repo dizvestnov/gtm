@@ -1,32 +1,24 @@
 version: "3.2"
 
 services:
-  frontend:
-    build: frontend
+  webserver:
+    container_name: webserver_advanced
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
     environment:
       XDEBUG_CONFIG: remote_host=host.docker.internal
       PHP_IDE_CONFIG: serverName=localhost
     ports:
-      - 81:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/var/www
-
-  backend:
-    build: backend
-    environment:
-      XDEBUG_CONFIG: remote_host=host.docker.internal
-      PHP_IDE_CONFIG: serverName=localhost
-    ports:
-      - 82:80
+      - 80:80
       - 8080:8080
     volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
       - ./:/var/www
+    links:
+      - mysql
+
+    depends_on:
+      - mysql
 
   mysql:
     image: mysql:5.7
