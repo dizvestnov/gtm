@@ -16,15 +16,18 @@ return [
 		'request' => [
 			'csrfParam' => '_csrf-backend',
 		],
+
 		'user' => [
 			'identityClass' => 'common\models\User',
 			'enableAutoLogin' => true,
 			'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
 		],
+
 		'session' => [
 			// this is the name of the session cookie used for login on the backend
 			'name' => 'advanced-backend',
 		],
+
 		'log' => [
 			'traceLevel' => YII_DEBUG ? 3 : 0,
 			'targets' => [
@@ -34,6 +37,7 @@ return [
 				],
 			],
 		],
+
 		'errorHandler' => [
 			'errorAction' => 'site/error',
 		],
@@ -43,6 +47,24 @@ return [
 			'showScriptName' => false,
 			'rules' => [],
 		],
+
+		/* 'view' => [
+			'theme' => [
+				'basePath' => '@app/themes/adminlte',
+				'baseUrl' => '@web/themes/adminlte',
+				'pathMap' => [
+					'@app/views' => '@app/themes/adminlte',
+				],
+			],
+		],
+
+		'assetManager' => [
+			'bundles' => [
+				'dmstr\web\AdminLteAsset' => [
+					'skin' => 'skin-blue',
+				],
+			],
+		], */
 
 	],
 	'params' => $params,
