@@ -49,7 +49,7 @@ class SocketServer implements MessageComponentInterface
 	private function sendClientEnteredMessage(array $message)
 	{
 		$clientUserName = $message['username'];
-		$message['username'] = 'system';
+		$message['username'] = '';
 		$message['message'] = "$clientUserName зашел в чат";
 		$this->sendMessageToAll($message);
 	}
@@ -57,8 +57,8 @@ class SocketServer implements MessageComponentInterface
 	{
 		$message = [
 			'created_at' => \Yii::$app->formatter->asDatetime(time(), 'php:d.m.Y h:i:s'),
-			'username' => 'system',
-			'message' => 'Добро пожаловать в чат geekbrains.ru'
+			'username' => '',
+			'message' => 'Добро пожаловать в чат gtm.local'
 		];
 		$conn->send(json_encode($message));
 	}
