@@ -5,7 +5,7 @@ $this->title = 'My Yii Application';
 <div class="site-index">
 	<div class="body-content">
 		<!-- Direct Chat -->
-		<section id="direct-chat" class="row">
+		<!-- <section id="direct-chat" class="row">
 			<div class="col-xs-5">
 				<div class="box box-warning direct-chat direct-chat-warning">
 					<div class="box-header with-border">
@@ -124,7 +124,7 @@ $this->title = 'My Yii Application';
 					</div>
 				</div>
 			</div>
-		</section>
+		</section> -->
 
 	</div>
 </div>
