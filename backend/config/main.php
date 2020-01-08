@@ -48,23 +48,23 @@ return [
 			'rules' => [],
 		],
 
-		/* 'view' => [
-			'theme' => [
-				'basePath' => '@app/themes/adminlte',
-				'baseUrl' => '@web/themes/adminlte',
-				'pathMap' => [
-					'@app/views' => '@app/themes/adminlte',
-				],
-			],
-		],
+		// 'view' => [
+		// 	'theme' => [
+		// 		'basePath' => '@app/themes/adminlte',
+		// 		'baseUrl' => '@web/themes/adminlte',
+		// 		'pathMap' => [
+		// 			'@app/views' => '@app/themes/adminlte',
+		// 		],
+		// 	],
+		// ],
 
-		'assetManager' => [
-			'bundles' => [
-				'dmstr\web\AdminLteAsset' => [
-					'skin' => 'skin-blue',
-				],
-			],
-		], */
+		// 'assetManager' => [
+		// 	'bundles' => [
+		// 		'dmstr\web\AdminLteAsset' => [
+		// 			'skin' => 'skin-blue',
+		// 		],
+		// 	],
+		// ],
 
 	],
 	'params' => $params,
