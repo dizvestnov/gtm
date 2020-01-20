@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model frontend\models\TaskSearch */
+/* @var $model backend\models\TaskSearch */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -25,23 +25,17 @@ use yii\widgets\ActiveForm;
 
 	<?= $form->field($model, 'creator_id') ?>
 
-	<?php // echo $form->field($model, 'responsible_id') 
-	?>
+	<?= $form->field($model, 'responsible_id') ?>
 
-	<?php // echo $form->field($model, 'performer_id') 
-	?>
+	<?= $form->field($model, 'performer_id') ?>
 
-	<?php // echo $form->field($model, 'priority_id') 
-	?>
+	<?= $form->field($model, 'priority_id') ?>
 
-	<?php // echo $form->field($model, 'status_id') 
-	?>
+	<?= $form->field($model, 'status_id') ?>
 
-	<?php // echo $form->field($model, 'created_at') 
-	?>
+	<?= $form->field($model, 'created_at') ?>
 
-	<?php // echo $form->field($model, 'updated_at') 
-	?>
+	<?= $form->field($model, 'updated_at') ?>
 
 	<div class="form-group">
 		<?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>

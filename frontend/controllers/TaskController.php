@@ -3,11 +3,17 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\Task;
-use frontend\models\TaskSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\helpers\ArrayHelper;
 use yii\filters\VerbFilter;
+use common\models\User;
+use common\models\Task;
+use common\models\Project;
+use common\models\TaskStatus;
+use common\models\TaskPriority;
+use frontend\models\TaskSearch;
+use frontend\models\CommentSearch;
 
 /**
  * TaskController implements the CRUD actions for Task model.
@@ -35,8 +41,33 @@ class TaskController extends Controller
 	 */
 	public function actionIndex()
 	{
+		if (empty(TaskStatus::getStatusName())) {
+			$taskStatusName = ['new', 'in progress', 'suspended', 'finish'];
+			foreach ($taskStatusName as $statusName) {
+				$taskStatus = new TaskStatus();
+				$taskStatus->name = $statusName;
+				$taskStatus->save();
+			}
+		}
+
+		if (empty(TaskPriority::getPriorityName())) {
+			$taskPriorityName = ['low', 'medium', 'high', 'immediate'];
+			foreach ($taskPriorityName as $priorityName) {
+				$taskPriority = new TaskPriority();
+				$taskPriority->name = $priorityName;
+				$taskPriority->save();
+			}
+		}
+
 		$searchModel = new TaskSearch();
+		Yii::beginProfile(
+			'geekbrains',
+			'$dataProvider = $searchModel->search(Yii::$app->request->queryParams);'
+		);
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+		$dataProvider->pagination->pageSize = 100;
+
+		Yii::endProfile('geekbrains', '$dataProvider = $searchModel->search(Yii::$app->request->queryParams);');
 
 		return $this->render('index', [
 			'searchModel' => $searchModel,
@@ -52,8 +83,33 @@ class TaskController extends Controller
 	 */
 	public function actionView($id)
 	{
+		$commentSearchModel = new CommentSearch();
+		$commentDataProvider = $commentSearchModel->search(Yii::$app->request->queryParams, (int) $id);
+
 		return $this->render('view', [
 			'model' => $this->findModel($id),
+			'commentSearchModel' => $commentSearchModel,
+			'commentDataProvider' => $commentDataProvider,
+			'creator' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'email'])->asArray()->all(),
+				'id',
+				'email'
+			),
+			'responsible' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'email'])->asArray()->all(),
+				'id',
+				'email'
+			),
+			'performer' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'email'])->asArray()->all(),
+				'id',
+				'email'
+			),
+			'projects' => ArrayHelper::map(
+				Project::getActiveProjects(),
+				'id',
+				'name'
+			)
 		]);
 	}
 
@@ -65,13 +121,31 @@ class TaskController extends Controller
 	public function actionCreate()
 	{
 		$model = new Task();
-
 		if ($model->load(Yii::$app->request->post()) && $model->save()) {
 			return $this->redirect(['view', 'id' => $model->id]);
 		}
-
 		return $this->render('create', [
 			'model' => $model,
+			'creator' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
+			'responsible' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
+			'performer' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
+			'projects' => ArrayHelper::map(
+				Project::getActiveProjects(),
+				'id',
+				'name'
+			)
 		]);
 	}
 
@@ -85,13 +159,31 @@ class TaskController extends Controller
 	public function actionUpdate($id)
 	{
 		$model = $this->findModel($id);
-
 		if ($model->load(Yii::$app->request->post()) && $model->save()) {
 			return $this->redirect(['view', 'id' => $model->id]);
 		}
-
 		return $this->render('update', [
 			'model' => $model,
+			'creator' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
+			'responsible' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
+			'performer' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
+			'projects' => ArrayHelper::map(
+				Project::getActiveProjects(),
+				'id',
+				'name'
+			)
 		]);
 	}
 

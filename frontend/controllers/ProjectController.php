@@ -3,11 +3,14 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\Project;
-use frontend\models\ProjectSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\helpers\ArrayHelper;
 use yii\filters\VerbFilter;
+use common\models\Project;
+use common\models\ProjectStatus;
+use frontend\models\ProjectSearch;
+use frontend\models\TaskSearch;
 
 /**
  * ProjectController implements the CRUD actions for Project model.
@@ -35,6 +38,14 @@ class ProjectController extends Controller
 	 */
 	public function actionIndex()
 	{
+		if (empty(ProjectStatus::getProjectStatusName())) {
+			$projectStatusName = ['archived', 'finish', 'new', 'in progress', 'suspended'];
+			foreach ($projectStatusName as $statusName) {
+				$projectStatus = new ProjectStatus();
+				$projectStatus->name = $statusName;
+				$projectStatus->save();
+			}
+		}
 		$searchModel = new ProjectSearch();
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -52,8 +63,13 @@ class ProjectController extends Controller
 	 */
 	public function actionView($id)
 	{
+		$taskSearchModel = new TaskSearch();
+		$taskDataProvider = $taskSearchModel->search(Yii::$app->request->queryParams, (int) $id);
+
 		return $this->render('view', [
 			'model' => $this->findModel($id),
+			'taskSearchModel' => $taskSearchModel,
+			'taskDataProvider' => $taskDataProvider
 		]);
 	}
 
