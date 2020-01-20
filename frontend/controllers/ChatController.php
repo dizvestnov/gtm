@@ -10,7 +10,8 @@ class ChatController extends Controller
 {
 	public function actionIndex()
 	{
-		if (Yii::$app->user->can('manager')) {
+		if (!Yii::$app->user->isGuest) {
+			// if (Yii::$app->user->can('user')) {
 			// $user_id = Yii::$app->user->identity->id;
 			$username = Yii::$app->user->identity->username;
 
