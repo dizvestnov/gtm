@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\ActiveQuery;
 use yii\web\IdentityInterface;
 
 /**
@@ -207,5 +208,14 @@ class User extends ActiveRecord implements IdentityInterface
 	public function removePasswordResetToken()
 	{
 		$this->password_reset_token = null;
+	}
+
+	public static function getActiveUsers(array $selectFields = []): ActiveQuery
+	{
+		$query =  self::find()->where(['status' => self::STATUS_ACTIVE]);
+		if (!empty($selectFields)) {
+			$query->select($selectFields);
+		}
+		return $query;
 	}
 }

@@ -3,6 +3,12 @@
 namespace common\models;
 
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
+use yii\behaviors\TimestampBehavior;
+use common\components\behaviors\ChatLogBehavior;
+use common\components\interfaces\ChatLoggable;
 
 /**
  * This is the model class for table "task".
@@ -19,125 +25,129 @@ use Yii;
  * @property int|null $created_at
  * @property int|null $updated_at
  *
- * @property Comment[] $comments
- * @property Tag[] $tags
- * @property User $creator
- * @property User $performer
+ * @property TaskStatus $status
  * @property TaskPriority $priority
  * @property Project $project
+ * @property User $creator
+ * @property User $performer
  * @property User $responsible
- * @property TaskStatus $status
+ * @property Tag[] $tags
+ * @property Comment[] $comments
  */
-class Task extends \yii\db\ActiveRecord
+class Task extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return 'task';
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public static function tableName()
+	{
+		return 'task';
+	}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['name', 'description', 'project_id', 'creator_id', 'responsible_id', 'performer_id', 'priority_id', 'status_id'], 'required'],
-            [['description'], 'string'],
-            [['project_id', 'creator_id', 'responsible_id', 'performer_id', 'priority_id', 'status_id', 'created_at', 'updated_at'], 'integer'],
-            [['name'], 'string', 'max' => 255],
-            [['creator_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['creator_id' => 'id']],
-            [['performer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['performer_id' => 'id']],
-            [['priority_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskPriority::className(), 'targetAttribute' => ['priority_id' => 'id']],
-            [['project_id'], 'exist', 'skipOnError' => true, 'targetClass' => Project::className(), 'targetAttribute' => ['project_id' => 'id']],
-            [['responsible_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['responsible_id' => 'id']],
-            [['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskStatus::className(), 'targetAttribute' => ['status_id' => 'id']],
-        ];
-    }
+	public function behaviors()
+	{
+		return [
+			'timestampBehavior' => [
+				'class' => TimestampBehavior::class,
+				'attributes' => [
+					ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+					ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+					'value' => time(),
+				],
+			],
+			// 'chatLogBehavior' => [
+			// 	'class' => ChatLogBehavior::class,
+			// ],
+		];
+	}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'description' => 'Description',
-            'project_id' => 'Project ID',
-            'creator_id' => 'Creator ID',
-            'responsible_id' => 'Responsible ID',
-            'performer_id' => 'Performer ID',
-            'priority_id' => 'Priority ID',
-            'status_id' => 'Status ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-        ];
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function rules()
+	{
+		return [
+			[['name', 'description', 'creator_id', 'responsible_id', 'performer_id', 'priority_id', 'status_id'], 'required'],
+			[['description'], 'string'],
+			[['project_id', 'creator_id', 'responsible_id', 'performer_id', 'priority_id', 'status_id', 'created_at', 'updated_at'], 'integer'],
+			[['name'], 'string', 'max' => 255],
+			[['creator_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['creator_id' => 'id']],
+			[['performer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['performer_id' => 'id']],
+			[['priority_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskPriority::class, 'targetAttribute' => ['priority_id' => 'id']],
+			[['project_id'], 'exist', 'skipOnError' => true, 'targetClass' => Project::class, 'targetAttribute' => ['project_id' => 'id']],
+			[['responsible_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['responsible_id' => 'id']],
+			[['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskStatus::class, 'targetAttribute' => ['status_id' => 'id']],
+		];
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getComments()
-    {
-        return $this->hasMany(Comment::className(), ['task_id' => 'id']);
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function attributeLabels()
+	{
+		return [
+			'id' => 'ID',
+			'name' => 'Name',
+			'description' => 'Description',
+			'project_id' => 'Project',
+			'creator_id' => 'Creator',
+			'responsible_id' => 'Responsible',
+			'performer_id' => 'Performer',
+			'priority_id' => 'Priority',
+			'status_id' => 'Status',
+			'created_at' => 'Created At',
+			'updated_at' => 'Updated At',
+		];
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTags()
-    {
-        return $this->hasMany(Tag::className(), ['task_id' => 'id']);
-    }
+	public function beforeValidate()
+	{
+		$this->creator_id = Yii::$app->user->id;
+		return parent::beforeValidate(); // TODO: Change the autogenerated stub
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCreator()
-    {
-        return $this->hasOne(User::className(), ['id' => 'creator_id']);
-    }
+	public function getComments(): ActiveQuery
+	{
+		return $this->hasMany(Comment::class, ['task_id' => 'id']);
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getPerformer()
-    {
-        return $this->hasOne(User::className(), ['id' => 'performer_id']);
-    }
+	public function getTags(): ActiveQuery
+	{
+		return $this->hasMany(Tag::class, ['task_id' => 'id']);
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getPriority()
-    {
-        return $this->hasOne(TaskPriority::className(), ['id' => 'priority_id']);
-    }
+	public function getCreator(): ActiveQuery
+	{
+		return $this->hasOne(User::class, ['id' => 'creator_id']);
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProject()
-    {
-        return $this->hasOne(Project::className(), ['id' => 'project_id']);
-    }
+	public function getPerformer(): ActiveQuery
+	{
+		return $this->hasOne(User::class, ['id' => 'performer_id']);
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getResponsible()
-    {
-        return $this->hasOne(User::className(), ['id' => 'responsible_id']);
-    }
+	public function getPriority(): ActiveQuery
+	{
+		return $this->hasOne(TaskPriority::class, ['id' => 'priority_id']);
+	}
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStatus()
-    {
-        return $this->hasOne(TaskStatus::className(), ['id' => 'status_id']);
-    }
+	public function getProject(): ActiveQuery
+	{
+		return $this->hasOne(Project::class, ['id' => 'project_id']);
+	}
+
+	public function getResponsible(): ActiveQuery
+	{
+		return $this->hasOne(User::class, ['id' => 'responsible_id']);
+	}
+
+	public function getStatus(): ActiveQuery
+	{
+		return $this->hasOne(TaskStatus::class, ['id' => 'status_id']);
+	}
+
+	public static function getTaskName(): array
+	{
+		return self::find()->all();
+	}
 }

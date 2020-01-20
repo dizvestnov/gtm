@@ -11,67 +11,71 @@ use common\models\Task;
  */
 class TaskSearch extends Task
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
-    {
-        return [
-            [['id', 'project_id', 'creator_id', 'responsible_id', 'performer_id', 'priority_id', 'status_id', 'created_at', 'updated_at'], 'integer'],
-            [['name', 'description'], 'safe'],
-        ];
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function rules()
+	{
+		return [
+			[['id', 'project_id', 'creator_id', 'responsible_id', 'performer_id', 'priority_id', 'status_id', 'created_at', 'updated_at'], 'integer'],
+			[['name', 'description'], 'safe'],
+		];
+	}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function scenarios()
-    {
-        // bypass scenarios() implementation in the parent class
-        return Model::scenarios();
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function scenarios()
+	{
+		// bypass scenarios() implementation in the parent class
+		return Model::scenarios();
+	}
 
-    /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     *
-     * @return ActiveDataProvider
-     */
-    public function search($params)
-    {
-        $query = Task::find();
+	/**
+	 * Creates data provider instance with search query applied
+	 *
+	 * @param array $params
+	 *
+	 * @return ActiveDataProvider
+	 */
+	public function search($params, int $projectId = null)
+	{
+		$query = Task::find();
 
-        // add conditions that should always apply here
+		// add conditions that should always apply here
 
-        $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-        ]);
+		$dataProvider = new ActiveDataProvider([
+			'query' => $query,
+		]);
 
-        $this->load($params);
+		if (!is_null($projectId)) {
+			$query->where(['project_id' => $projectId]);
+		}
 
-        if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
-            return $dataProvider;
-        }
+		$this->load($params);
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'project_id' => $this->project_id,
-            'creator_id' => $this->creator_id,
-            'responsible_id' => $this->responsible_id,
-            'performer_id' => $this->performer_id,
-            'priority_id' => $this->priority_id,
-            'status_id' => $this->status_id,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ]);
+		if (!$this->validate()) {
+			// uncomment the following line if you do not want to return any records when validation fails
+			// $query->where('0=1');
+			return $dataProvider;
+		}
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'description', $this->description]);
+		// grid filtering conditions
+		$query->andFilterWhere([
+			'id' => $this->id,
+			'project_id' => $this->project_id,
+			'creator_id' => $this->creator_id,
+			'responsible_id' => $this->responsible_id,
+			'performer_id' => $this->performer_id,
+			'priority_id' => $this->priority_id,
+			'status_id' => $this->status_id,
+			'created_at' => $this->created_at,
+			'updated_at' => $this->updated_at,
+		]);
 
-        return $dataProvider;
-    }
+		$query->andFilterWhere(['like', 'name', $this->name])
+			->andFilterWhere(['like', 'description', $this->description]);
+
+		return $dataProvider;
+	}
 }

@@ -12,35 +12,33 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="task-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+	<h1 class="text-center"><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Create Task', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+	<p class="text-right">
+		<?= Html::a('Create Task', ['create'], ['class' => 'btn btn-success']) ?>
+	</p>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+	<?= GridView::widget([
+		'dataProvider' => $dataProvider,
+		'filterModel' => $searchModel,
+		'columns' => [
+			['class' => 'yii\grid\SerialColumn'],
 
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+			// 'id',
+			'project.name',
+			'name',
+			'status.name',
+			'priority.name',
+			// 'description:ntext',
+			// 'creator.username',
+			// 'responsible.username',
+			// 'performer.username',
+			'created_at:datetime',
+			'updated_at:datetime',
 
-            'id',
-            'name',
-            'description:ntext',
-            'project_id',
-            'creator_id',
-            //'responsible_id',
-            //'performer_id',
-            //'priority_id',
-            //'status_id',
-            //'created_at',
-            //'updated_at',
-
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
+			['class' => 'yii\grid\ActionColumn'],
+		],
+	]); ?>
 
 
 </div>
