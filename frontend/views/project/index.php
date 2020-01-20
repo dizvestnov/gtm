@@ -28,19 +28,19 @@ $this->params['breadcrumbs'][] = $this->title;
 		'columns' => [
 			['class' => 'yii\grid\SerialColumn'],
 
-			'id',
+			// 'id',
 			[
 				'label' => 'Название',
 				'value' => function (Project $model) {
 					return $model->name;
 				}
 			],
-			[
-				'label' => 'Автор',
-				'value' => function (Project $model) {
-					return $model->author->username;
-				}
-			],
+			// [
+			// 	'label' => 'Автор',
+			// 	'value' => function (Project $model) {
+			// 		return $model->author->username;
+			// 	}
+			// ],
 			[
 				'label' => 'Статус',
 				'value' => function (Project $model) {

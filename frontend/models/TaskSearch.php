@@ -2,6 +2,7 @@
 
 namespace frontend\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Task;
@@ -40,7 +41,8 @@ class TaskSearch extends Task
 	 */
 	public function search($params)
 	{
-		$query = Task::find();
+		// $query = Task::find();
+		$query = Task::find()->where(['responsible_id' => Yii::$app->user->id]);
 
 		// add conditions that should always apply here
 

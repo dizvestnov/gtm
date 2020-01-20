@@ -2,6 +2,7 @@
 
 namespace frontend\models;
 
+use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Project;
@@ -40,7 +41,7 @@ class ProjectSearch extends Project
 	 */
 	public function search($params)
 	{
-		$query = Project::find();
+		$query = Project::find()->where(['author_id' => Yii::$app->user->id]);
 
 		// add conditions that should always apply here
 
