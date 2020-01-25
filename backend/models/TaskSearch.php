@@ -6,6 +6,8 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\Task;
 
+use function GuzzleHttp\Promise\all;
+
 /**
  * TaskSearch represents the model behind the search form of `common\models\Task`.
  */
@@ -40,7 +42,7 @@ class TaskSearch extends Task
 	 */
 	public function search($params, int $projectId = null)
 	{
-		$query = Task::find();
+		$query = Task::find()->joinWith('project')->joinWith('status');
 
 		// add conditions that should always apply here
 
