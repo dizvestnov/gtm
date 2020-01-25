@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: evg
- * Date: 04/11/2019
- * Time: 14:23
- */
-
 namespace common\components\behaviors;
 
 use common\components\interfaces\ChatLoggable;

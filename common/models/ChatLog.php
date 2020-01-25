@@ -5,6 +5,8 @@ namespace common\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use common\models\User;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "chat_log".
@@ -13,12 +15,14 @@ use yii\db\ActiveRecord;
  * @property int $task_id
  * @property int $project_id
  * @property int $type
+ * @property int $user_id
  * @property string $username
  * @property string $message
  * @property string $created_at
  */
-class ChatLog extends \yii\db\ActiveRecord
+class ChatLog extends ActiveRecord
 {
+
 	const TYPE_HELLO_MESSAGE = 1;
 	const TYPE_CHAT_MESSAGE = 2;
 	const TYPE_SHOW_HISTORY_MESSAGE = 3;
@@ -29,6 +33,7 @@ class ChatLog extends \yii\db\ActiveRecord
 	{
 		return 'chat_log';
 	}
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -36,10 +41,11 @@ class ChatLog extends \yii\db\ActiveRecord
 	{
 		return [
 			['created_at', 'safe'],
-			[['username', 'message'], 'string', 'max' => 255],
-			[['task_id', 'project_id', 'type'], 'integer']
+			[['message'], 'string', 'max' => 255],
+			[['user_id', 'task_id', 'project_id', 'type'], 'integer']
 		];
 	}
+
 	public function behaviors()
 	{
 		return [
@@ -53,6 +59,7 @@ class ChatLog extends \yii\db\ActiveRecord
 			],
 		];
 	}
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -60,31 +67,36 @@ class ChatLog extends \yii\db\ActiveRecord
 	{
 		return [
 			'id' => 'ID',
-			'username' => 'Username',
+			'user_id' => 'User ID',
 			'message' => 'Message',
 			'created_at' => 'Created At',
 		];
 	}
+
 	public static function saveLog(array $msg)
 	{
 		try {
 			$model = new self([
-				'username' => $msg['username'],
+				// 'username' => $msg['username'],
+				'user_id' => $msg['user_id'],
 				'message' => $msg['message'],
 			]);
 			$model->project_id = $msg['project_id'] ?? null;
 			$model->task_id = $msg['task_id'] ?? null;
 			$model->type = $msg['type'] ?? null;
+
 			$model->created_at = time();
 			$model->save();
 		} catch (\Throwable $exception) {
 			Yii::error($exception->getMessage());
 		}
 	}
+
 	public function asJson()
 	{
 		return json_encode($this->toArray());
 	}
+
 	public function fields()
 	{
 		return array_merge(parent::fields(), [
@@ -93,6 +105,12 @@ class ChatLog extends \yii\db\ActiveRecord
 			}
 		]);
 	}
+
+	public function getUser(): ActiveQuery
+	{
+		return $this->hasOne(User::class, ['id' => 'user_id']);
+	}
+
 	/**
 	 * @param $data
 	 * @return \yii\db\ActiveQuery
@@ -101,13 +119,27 @@ class ChatLog extends \yii\db\ActiveRecord
 	{
 		$project_id = $data['project_id'] ?? null;
 		$task_id = $data['task_id'] ?? null;
-		$query = ChatLog::find()->andFilterWhere([
-			'project_id' => $project_id,
-			'task_id' => $task_id,
-			'type' => ChatLog::TYPE_CHAT_MESSAGE
-		])
+
+		$query = ChatLog::find()
+			->select([
+				'chat_log.id',
+				'user.username',
+				'chat_log.message',
+				'chat_log.created_at',
+				// 'chat_log.project_id',
+				// 'chat_log.task_id',
+				// 'chat_log.type',
+				// 'chat_log.user_id',
+			])
+			->innerJoinWith('user')
+			->andFilterWhere([
+				'project_id' => $project_id,
+				'task_id' => $task_id,
+				'type' => ChatLog::TYPE_CHAT_MESSAGE
+			])
 			->orderBy('created_at ASC')
 			->limit(100);
+
 		return $query;
 	}
 }

@@ -2,7 +2,9 @@
 
 namespace console\components;
 
+use Yii;
 use common\models\ChatLog;
+use common\models\User;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 use yii\base\InvalidArgumentException;
@@ -10,63 +12,93 @@ use yii\base\InvalidArgumentException;
 class SocketServer implements MessageComponentInterface
 {
 	protected $clients;
+	/** @var ConnectionInterface */
+	protected $currentConnection;
+
 	public function __construct()
 	{
 		// Для хранения технической информации об присоединившихся
 		// клиентах используется технология SplObjectStorage, встроенная в PHP
 		$this->clients = new \SplObjectStorage();
 	}
+
 	public function onOpen(ConnectionInterface $conn)
 	{
 		$this->clients->attach($conn);
-		$this->sendWelcomeMessage($conn);
+		$this->currentConnection = $conn;
+		$this->sendWelcomeMessage();
 		var_dump("New connection! ({$conn->resourceId})");
 	}
+
 	public function onMessage(ConnectionInterface $from, $message)
 	{
-		var_dump($message);
-		var_dump('clients:' . count($this->clients));
+		// var_dump('clients:' . count($this->clients));
+
 		$message = json_decode($message, true);
+
 		try {
-			$type = $message['type'];
+			$type = (int) $message['type'];
 		} catch (\Throwable $exception) {
 			throw new InvalidArgumentException('No type');
 		}
-		if ($type === 'chat') {
+
+		if ($type === ChatLog::TYPE_CHAT_MESSAGE) {
 			$this->sendMessageToAll($message);
-		} elseif ($type === 'hello') {
+		} elseif ($type === ChatLog::TYPE_HELLO_MESSAGE) {
 			$this->sendClientEnteredMessage($message);
+		} elseif ($type === ChatLog::TYPE_SHOW_HISTORY_MESSAGE) {
+			$this->showHistory($message);
 		}
 	}
+
+	private function showHistory($message)
+	{
+		var_dump($message);
+		foreach (ChatLog::findChatMessages($message)->each() as $chatMessage) {
+			// var_dump($message);
+			//Продолжжить реализовывать подстановку имени пользователя
+			// $message['username'] = User::find(['id' => $message['user_id']]);
+			$this->currentConnection->send($chatMessage->asJson());
+		}
+	}
+
 	private function sendMessageToAll(array $message)
 	{
-		$message['created_at'] = \Yii::$app->formatter->asDatetime(time(), 'php:d.m.Y h:i:s');
+		$message['created_datetime'] = Yii::$app->formatter->asDatetime(time());
+
 		ChatLog::saveLog($message);
 		foreach ($this->clients as $client) {
+
 			$client->send(json_encode($message));
 		}
 	}
+
 	private function sendClientEnteredMessage(array $message)
 	{
 		$clientUserName = $message['username'];
-		$message['username'] = '';
+		$message['username'] = 'system';
 		$message['message'] = "$clientUserName зашел в чат";
+
 		$this->sendMessageToAll($message);
 	}
-	private function sendWelcomeMessage(ConnectionInterface $conn)
+
+	private function sendWelcomeMessage()
 	{
 		$message = [
-			'created_at' => \Yii::$app->formatter->asDatetime(time(), 'php:d.m.Y h:i:s'),
-			'username' => '',
-			'message' => 'Добро пожаловать в чат gtm.local'
+			'created_datetime' => \Yii::$app->formatter->asDatetime(time()),
+			'username' => 'system',
+			'message' => 'Добро пожаловать в чат geekbrains.ru'
 		];
-		$conn->send(json_encode($message));
+
+		$this->currentConnection->send(json_encode($message));
 	}
+
 	public function onClose(ConnectionInterface $conn)
 	{
 		$this->clients->detach($conn);
 		echo "Connection {$conn->resourceId} has disconnected\n";
 	}
+
 	public function onError(ConnectionInterface $conn, \Exception $e)
 	{
 		echo "An error has occurred: {$e->getMessage()}\n";
