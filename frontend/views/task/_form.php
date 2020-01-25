@@ -21,6 +21,8 @@ use common\models\TaskPriority;
 
 	<?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
+	<?= $form->field($model, 'creator_id')->dropDownList($creator) ?>
+
 	<?= $form->field($model, 'responsible_id')->dropDownList($responsible) ?>
 
 	<?= $form->field($model, 'performer_id')->dropDownList($performer) ?>

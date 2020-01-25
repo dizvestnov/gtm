@@ -55,9 +55,9 @@ class Task extends ActiveRecord
 					'value' => time(),
 				],
 			],
-			// 'chatLogBehavior' => [
-			// 	'class' => ChatLogBehavior::class,
-			// ],
+			'chatLogBehavior' => [
+				'class' => ChatLogBehavior::class,
+			],
 		];
 	}
 
@@ -73,9 +73,9 @@ class Task extends ActiveRecord
 			[['name'], 'string', 'max' => 255],
 			[['creator_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['creator_id' => 'id']],
 			[['performer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['performer_id' => 'id']],
+			[['responsible_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['responsible_id' => 'id']],
 			[['priority_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskPriority::class, 'targetAttribute' => ['priority_id' => 'id']],
 			[['project_id'], 'exist', 'skipOnError' => true, 'targetClass' => Project::class, 'targetAttribute' => ['project_id' => 'id']],
-			[['responsible_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['responsible_id' => 'id']],
 			[['status_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskStatus::class, 'targetAttribute' => ['status_id' => 'id']],
 		];
 	}
@@ -149,5 +149,17 @@ class Task extends ActiveRecord
 	public static function getTaskName(): array
 	{
 		return self::find()->all();
+	}
+
+	public function saveChatLog()
+	{
+		$chatLog = new ChatLog();
+		$message = "Пользователь {$this->creator->username} создал новую задачу {$this->name}";
+		$chatLog->task_id = $this->id;
+		$chatLog->project_id = $this->project_id;
+		$chatLog->type = ChatLog::TYPE_CHAT_MESSAGE;
+		$chatLog->user_id = Yii::$app->user->id;
+		$chatLog->message = $message;
+		$chatLog->save();
 	}
 }

@@ -41,8 +41,12 @@ class TaskSearch extends Task
 	 */
 	public function search($params)
 	{
+		// Надо оптимизировать запрос, слишком долгий
 		// $query = Task::find();
-		$query = Task::find()->where(['responsible_id' => Yii::$app->user->id]);
+		$query = Task::find()
+			->where(['creator_id' => Yii::$app->user->id])
+			->orWhere(['responsible_id' => Yii::$app->user->id])
+			->orWhere(['performer_id' => Yii::$app->user->id]);
 
 		// add conditions that should always apply here
 

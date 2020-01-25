@@ -29,10 +29,10 @@ $this->params['breadcrumbs'][] = $this->title;
 			'name',
 			'status.name',
 			'priority.name',
-			// 'description:ntext',
+			'description:ntext',
 			'creator.username',
 			'responsible.username',
-			// 'performer.username',
+			'performer.username',
 			'created_at:datetime',
 			'updated_at:datetime',
 

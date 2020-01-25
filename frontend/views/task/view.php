@@ -61,4 +61,7 @@ $this->params['breadcrumbs'][] = $this->title;
 			]); ?>
 		</div>
 	</div>
+
+	<?= \common\widgets\chat\ChatWidget::widget() ?>
+
 </div>
