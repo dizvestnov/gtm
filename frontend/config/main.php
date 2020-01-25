@@ -12,8 +12,16 @@ return [
 	'bootstrap' => ['log'],
 	'controllerNamespace' => 'frontend\controllers',
 	'components' => [
+		'assetManager' => [
+			'appendTimestamp' => true,
+		],
+
 		'request' => [
 			'csrfParam' => '_csrf-frontend',
+			'parsers' => [
+				'application/json' => \yii\web\JsonParser::class,
+				'charset' => 'UTF-8'
+			],
 		],
 
 		'user' => [
@@ -44,7 +52,26 @@ return [
 		'urlManager' => [
 			'enablePrettyUrl' => true,
 			'showScriptName' => false,
-			'rules' => [],
+			'rules' => [
+				// [
+				// 	'controller' => 'api/task',
+				// 	'class' => \yii\rest\UrlRule::class,
+				// 	//отключим трансформацию task в tasks
+				// 	'extraPatterns' => [
+				// 		//'METHOD action' => 'actionFunction',
+				// 		'POST random/<count>' => 'random',
+				// 	],
+				// ],
+				// [
+				// 	'class' => \yii\rest\UrlRule::class,
+				// 	'controller' => 'api/user',
+				// 	'extraPatterns' => [
+				// 		// actions
+				// 		'GET me' => 'me',
+				// 		'GET <id>/tasks' => 'tasks',
+				// 	],
+				// ],
+			],
 		],
 
 		/* 'view' => [
