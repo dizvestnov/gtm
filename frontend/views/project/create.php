@@ -16,6 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
 	<div class="col-md-6" style="margin: 0 auto; float:none;">
 		<?= $this->render('_form', [
 			'model' => $model,
+			'author' => $author,
 		]) ?>
 	</div>
 

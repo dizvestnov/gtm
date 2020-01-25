@@ -16,6 +16,8 @@ use common\models\ProjectStatus;
 
 	<?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
+	<?= $form->field($model, 'author_id')->dropDownList($author) ?>
+
 	<?= $form->field($model, 'project_status_id')->dropDownList(ProjectStatus::getProjectStatusName()) ?>
 
 	<div class="form-group">

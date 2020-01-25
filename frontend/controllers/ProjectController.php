@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\helpers\ArrayHelper;
 use yii\filters\VerbFilter;
+use common\models\User;
 use common\models\Project;
 use common\models\ProjectStatus;
 use frontend\models\ProjectSearch;
@@ -88,6 +89,11 @@ class ProjectController extends Controller
 
 		return $this->render('create', [
 			'model' => $model,
+			'author' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
 		]);
 	}
 
@@ -108,6 +114,11 @@ class ProjectController extends Controller
 
 		return $this->render('update', [
 			'model' => $model,
+			'author' => ArrayHelper::map(
+				User::getActiveUsers(['id', 'username'])->asArray()->all(),
+				'id',
+				'username'
+			),
 		]);
 	}
 
@@ -134,6 +145,8 @@ class ProjectController extends Controller
 	 */
 	protected function findModel($id)
 	{
+		// $model = Project::find()->where(['id' => $id, 'author_id' => Yii::$app->user->id])->one;
+		// if (($model !== null) {
 		if (($model = Project::findOne($id)) !== null) {
 			return $model;
 		}

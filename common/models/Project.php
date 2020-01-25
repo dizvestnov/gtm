@@ -107,7 +107,7 @@ class Project extends ActiveRecord
 		$message = "Пользователь {$this->author->username} создал новый проект {$this->name}";
 		$chatLog->project_id = $this->id;
 		$chatLog->type = ChatLog::TYPE_CHAT_MESSAGE;
-		$chatLog->username = \Yii::$app->user->identity->username;
+		$chatLog->user_id = Yii::$app->user->id;
 		$chatLog->message = $message;
 		$chatLog->save();
 	}
