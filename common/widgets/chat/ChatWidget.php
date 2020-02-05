@@ -17,6 +17,8 @@ class ChatWidget extends Widget
 		parent::init();
 		ChatAsset::register($this->view);
 		if (Yii::$app->user->isGuest) {
+			// Сообщение гостя не сохраняется в бд
+
 			$this->username = 'Guest';
 			$this->user_id = null;
 		} else {

@@ -32,7 +32,7 @@ class SocketServer implements MessageComponentInterface
 
 	public function onMessage(ConnectionInterface $from, $message)
 	{
-		// var_dump('clients:' . count($this->clients));
+		var_dump('clients:' . count($this->clients));
 
 		$message = json_decode($message, true);
 
@@ -53,9 +53,14 @@ class SocketServer implements MessageComponentInterface
 
 	private function showHistory($message)
 	{
+		// var_dump($message);
+		$message['username'] = 'Имя пользователя';
 		var_dump($message);
 		foreach (ChatLog::findChatMessages($message)->each() as $chatMessage) {
-			// var_dump($message);
+			var_dump($chatMessage->asJson());
+			// $chatMessage['username'] = 'Имя пользователя';
+			// var_dump($chatMessage['username']);
+
 			//Продолжжить реализовывать подстановку имени пользователя
 			// $message['username'] = User::find(['id' => $message['user_id']]);
 			$this->currentConnection->send($chatMessage->asJson());
